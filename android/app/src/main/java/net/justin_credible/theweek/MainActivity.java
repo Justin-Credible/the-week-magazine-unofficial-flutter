@@ -1,4 +1,4 @@
-package com.yourcompany.theweek;
+package net.justin_credible.theweek;
 
 import android.os.Bundle;
 

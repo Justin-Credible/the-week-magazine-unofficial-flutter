@@ -1,5 +1,5 @@
 name: theweek
-description: A new Flutter project.
+description: An unofficial app for The Week magazine.
 
 dependencies:
   flutter:
