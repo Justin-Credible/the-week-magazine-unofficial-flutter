@@ -2,6 +2,8 @@ name: theweek
 description: An unofficial app for The Week magazine.
 
 dependencies:
+  xml2json: "2.0.8"
+  http: ">=0.11.3+12"
   flutter:
     sdk: flutter
 
