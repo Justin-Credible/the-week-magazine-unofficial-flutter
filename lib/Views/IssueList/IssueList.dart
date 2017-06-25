@@ -1,6 +1,5 @@
 import "dart:async";
 import "package:flutter/material.dart";
-import "../Menu.dart";
 import "../../MagazineDataSource.dart";
 import "IssueListItem.dart";
 
@@ -10,26 +9,27 @@ class IssueList extends StatefulWidget {
     final String title;
 
     @override
-    _IssueListState createState() => new _IssueListState();
+    IssueListState createState() => new IssueListState();
 }
 
-class _IssueListState extends State<IssueList> {
+class IssueListState extends State<IssueList> {
 
-    final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
     final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
 
+    bool _showSpinner = false;
     List _entries = new List();
 
-    void _refreshPressed() {
+    Future<Null> refresh() {
 
-        _refreshIndicatorKey.currentState.show();
+        // Tell the refresh indicator to perform a refresh if one isn't already in progress.
+        return _refreshIndicatorKey.currentState.show();
     }
 
-    Future<Null> _refresh({bool forceRefresh}) {
+    Future<Null> _doRefresh(bool forceRefresh) {
 
         var completer = new Completer();
 
-        MagazineDataSource.retrieveIssueFeed(forceRefresh: true)
+        MagazineDataSource.retrieveIssueFeed(forceRefresh)
             .then((Map feed) {
 
             var entries = feed["entry"];
@@ -37,63 +37,74 @@ class _IssueListState extends State<IssueList> {
             setState(() { _entries = entries; });
 
             completer.complete(null);
+
+        }).whenComplete(() {
+            setState(() { _showSpinner = false; });
         });
 
         return completer.future;
-    }
-
-    Widget _buildItems(BuildContext context, int index) {
-
-        Map entry = _entries[index];
-
-        return new Column(
-            children: [
-                new IssueListItem(issue: entry),
-                new Divider(),
-            ]
-        );
     }
 
     @override
     initState() {
         super.initState();
 
-        _refresh();
+        _showSpinner = true;
+        _doRefresh(false);
     }
 
     @override
     Widget build(BuildContext context) {
 
-        return new Scaffold(
+        Widget buildChild() {
 
-            key: _scaffoldKey,
+            if (_showSpinner) {
 
-            appBar: new AppBar(
+                return new Center(
+                    child: new CircularProgressIndicator()
+                );
+            }
+            else if (_entries == null || _entries.length == 0) {
 
-                title: new Text(widget.title),
-
-                actions: [
-                    new IconButton(
-                        icon: const Icon(Icons.refresh),
-                        tooltip: "Refresh",
-                        onPressed: _refreshPressed,
+                return new Container(
+                    padding: new EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
+                    child: new Column(
+                        children: <Widget>[
+                            const Text("No issues available."),
+                            new RaisedButton(
+                                child: new Text("Refresh"),
+                                onPressed: () => refresh(),
+                            ),
+                        ],
                     ),
-                ],
-            ),
+                );
 
-            drawer: new Menu(),
+            }
+            else {
 
-            body: new RefreshIndicator(
-
-                key: _refreshIndicatorKey,
-                onRefresh: () => _refresh(forceRefresh: true),
-
-                child: new ListView.builder(
+                return new ListView.builder(
                     padding: kMaterialListPadding,
-                    itemCount: _entries == null ? 0 : _entries.length,
-                    itemBuilder: _buildItems
-                ),
-            ),
+                    itemCount: _entries.length,
+
+                    itemBuilder: (BuildContext context, int index) {
+
+                        Map entry = _entries[index];
+
+                        return new Column(
+                            children: [
+                                new IssueListItem(issue: entry),
+                                new Divider(),
+                            ]
+                        );
+                    },
+                );
+            }
+        }
+
+        return new RefreshIndicator(
+            key: _refreshIndicatorKey,
+            onRefresh: () => _doRefresh(true),
+            child: buildChild(),
         );
     }
 }

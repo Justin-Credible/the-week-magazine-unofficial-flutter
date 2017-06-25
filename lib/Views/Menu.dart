@@ -24,8 +24,8 @@ class _MenuState extends State<Menu> {
     }
 
     void _aboutOnTap() {
-        // TODO
         Navigator.pop(context);
+        Navigator.of(context).pushNamed("/about");
     }
 
     @override

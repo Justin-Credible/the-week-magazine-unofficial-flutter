@@ -3,7 +3,7 @@ import "TheWeekAPI.dart";
 
 class MagazineDataSource {
 
-    static Future<Map> retrieveIssueFeed({bool forceRefresh}) {
+    static Future<Map> retrieveIssueFeed([bool forceRefresh = false]) {
 
         var completer = new Completer<Map>();
 

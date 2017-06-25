@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
-import "Views/IssueList/IssueList.dart";
+import "Views/Root.dart";
+import "Views/About.dart";
 
 class Application extends StatelessWidget {
 
@@ -14,7 +15,11 @@ class Application extends StatelessWidget {
                 primarySwatch: Colors.red,
             ),
 
-            home: new IssueList(title: "Issues"),
+            home: new Root(),
+
+            routes: {
+                "/about": (BuildContext context) => new About(),
+            },
         );
     }
 }
