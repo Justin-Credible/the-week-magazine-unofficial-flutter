@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "Views/Issues.dart";
+import "Views/IssueList/IssueList.dart";
 
 class Application extends StatelessWidget {
 
@@ -14,7 +14,7 @@ class Application extends StatelessWidget {
                 primarySwatch: Colors.red,
             ),
 
-            home: new Issues(title: "Issues"),
+            home: new IssueList(title: "Issues"),
         );
     }
 }

@@ -1,18 +1,19 @@
 import "dart:async";
 import "package:flutter/material.dart";
-import "Menu.dart";
-import "../MagazineDataSource.dart";
+import "../Menu.dart";
+import "../../MagazineDataSource.dart";
+import "IssueListItem.dart";
 
-class Issues extends StatefulWidget {
-    Issues({Key key, this.title}) : super(key: key);
+class IssueList extends StatefulWidget {
+    IssueList({Key key, this.title}) : super(key: key);
 
     final String title;
 
     @override
-    _IssuesState createState() => new _IssuesState();
+    _IssueListState createState() => new _IssueListState();
 }
 
-class _IssuesState extends State<Issues> {
+class _IssueListState extends State<IssueList> {
 
     final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
     final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
@@ -45,8 +46,11 @@ class _IssuesState extends State<Issues> {
 
         Map entry = _entries[index];
 
-        return new ListTile(
-            title: new Text(entry["title"])
+        return new Column(
+            children: [
+                new IssueListItem(issue: entry),
+                new Divider(),
+            ]
         );
     }
 
