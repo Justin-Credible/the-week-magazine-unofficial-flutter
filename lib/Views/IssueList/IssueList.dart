@@ -1,6 +1,7 @@
 import "dart:async";
 import "package:flutter/material.dart";
-import "../../MagazineDataSource.dart";
+import "../../Data/Cache.dart";
+import "../../Data/MagazineDataSource.dart";
 import "IssueListItem.dart";
 
 class IssueList extends StatefulWidget {
@@ -29,7 +30,9 @@ class IssueListState extends State<IssueList> {
 
         var completer = new Completer();
 
-        MagazineDataSource.retrieveIssueFeed(forceRefresh)
+        var cacheBehavior = forceRefresh ? CacheBehavior.InvalidateCache : CacheBehavior.AllowStale;
+
+        MagazineDataSource.retrieveIssueFeed(cacheBehavior)
             .then((Map feed) {
 
             var entries = feed["entry"];
@@ -68,14 +71,16 @@ class IssueListState extends State<IssueList> {
 
                 return new Container(
                     padding: new EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
-                    child: new Column(
-                        children: <Widget>[
-                            const Text("No issues available."),
-                            new RaisedButton(
-                                child: new Text("Refresh"),
-                                onPressed: () => refresh(),
-                            ),
-                        ],
+                    child: new Center(
+                        child: new Column(
+                            children: <Widget>[
+                                const Text("No issues available."),
+                                new RaisedButton(
+                                    child: new Text("Refresh"),
+                                    onPressed: () => refresh(),
+                                ),
+                            ],
+                        ),
                     ),
                 );
 
