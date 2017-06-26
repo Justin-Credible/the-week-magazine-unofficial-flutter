@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
+
 import "Views/Root.dart";
-import "Views/About.dart";
+import "Views/Menu/About.dart";
 
 class Application extends StatelessWidget {
 
