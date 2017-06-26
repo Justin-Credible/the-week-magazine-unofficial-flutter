@@ -3,6 +3,7 @@ import "dart:async";
 import "Cache.dart";
 import "TheWeekAPI.dart";
 
+// TODO: Switch methods to use async keyword.
 class MagazineDataSource {
 
     static Future<Map> retrieveIssueFeed([CacheBehavior cacheBehavior = CacheBehavior.Default]) {

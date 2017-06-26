@@ -5,6 +5,7 @@ import "package:http/http.dart";
 import "package:flutter/services.dart";
 import "package:xml2json/xml2json.dart";
 
+// TODO: Switch methods to use async keyword.
 class TheWeekAPI {
 
     static String _url = "https://magazine.theweek.com/endpoint.xml";

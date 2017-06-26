@@ -57,6 +57,8 @@ class CacheEntry<T> {
     }
 }
 
+// TODO: Implement optional file system backed cache.
+
 /// An in-memory cache.
 class Cache {
 
