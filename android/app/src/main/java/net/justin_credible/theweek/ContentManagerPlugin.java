@@ -2,16 +2,9 @@ package net.justin_credible.theweek;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.LauncherApps;
 
-import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.MethodCall;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -171,9 +164,9 @@ public final class ContentManagerPlugin {
 
     //region Plugin Methods
 
-    private synchronized void setContentBaseURL(final MethodCall call, final Result result) throws JSONException {
+    private synchronized void setContentBaseURL(final MethodCall call, final Result result) {
 
-        String baseContentURL = call.<String>argument("url");
+        String baseContentURL = call.argument("url");
 
         if (baseContentURL == null || baseContentURL.equals("")) {
             result.error("INVALID_ARGUMENT", "A URL is required.", null);
@@ -185,9 +178,9 @@ public final class ContentManagerPlugin {
         result.success(null);
     }
 
-    private synchronized void getDownloadedIssues(final Result result) throws JSONException {
+    private synchronized void getDownloadedIssues(final Result result) {
 
-        JSONArray array = new JSONArray();
+        Map<String, Boolean> map = new HashMap<>();
 
         Context appContext = this.activity.getApplicationContext();
         String baseStorageDir = appContext.getFilesDir().toString();
@@ -197,7 +190,7 @@ public final class ContentManagerPlugin {
         File issuesDir = new File(issuesDirPath);
 
         if (!issuesDir.exists() || !issuesDir.isDirectory()) {
-            result.success(array);
+            result.success(map);
             return;
         }
 
@@ -211,17 +204,13 @@ public final class ContentManagerPlugin {
 
             File completeTagFile = new File(completeTagPath);
 
-            JSONObject issue = new JSONObject();
-            issue.put("id", childFile.getName());
-            issue.put("ok", completeTagFile.exists());
-
-            array.put(issue);
+            map.put(childFile.getName(), completeTagFile.exists());
         }
 
-        result.success(array);
+        result.success(map);
     }
 
-    private synchronized void downloadIssue(final MethodCall call, final Result result) throws JSONException {
+    private synchronized void downloadIssue(final MethodCall call, final Result result) {
 
         if (baseContentURL == null) {
             result.error("INVALID_ARGUMENT", "A content base URL must be set using setContentBaseURL before invoking this method.", null);
@@ -233,7 +222,7 @@ public final class ContentManagerPlugin {
             return;
         }
 
-        String id = call.<String>argument("id");
+        String id = call.argument("id");
 
         // Create an initial status so there is something to return if the client queries for
         // the status before the download task has gotten to do any work.
@@ -287,7 +276,7 @@ public final class ContentManagerPlugin {
         result.success(null);
     }
 
-    private synchronized void cancelDownload(final Result result) throws JSONException {
+    private synchronized void cancelDownload(final Result result) {
 
         if (currentDownloadTask == null) {
             result.error("DOWNLOAD_IN_PROGRESS", "A download is not currently in progress.", null);
@@ -299,34 +288,34 @@ public final class ContentManagerPlugin {
         result.success(null);
     }
 
-    private synchronized void getDownloadStatus(final Result result) throws JSONException {
+    private synchronized void getDownloadStatus(final Result result) {
 
-        Map<String, Object> resultMap = new HashMap<String, Object>();
+        Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("inProgress", currentDownloadStatus.inProgress);
         resultMap.put("id", currentDownloadStatus.id);
         resultMap.put("statusText", currentDownloadStatus.statusText);
         resultMap.put("percentage", currentDownloadStatus.percentage);
 
-        result.success(new JSONObject(resultMap));
+        result.success(resultMap);
     }
 
-    private synchronized void getLastDownloadResult(final Result result) throws JSONException {
+    private synchronized void getLastDownloadResult(final Result result) {
 
         if (lastDownloadResult == null) {
             result.success(null);
         }
 
-        Map<String, Object> resultMap = new HashMap<String, Object>();
+        Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("message", lastDownloadResult.message);
         resultMap.put("success", lastDownloadResult.success);
         resultMap.put("cancelled", lastDownloadResult.cancelled);
 
-        result.success(new JSONObject(resultMap));
+        result.success(resultMap);
     }
 
     private synchronized void deleteIssue(final MethodCall call, final Result result) throws Exception {
 
-        String id = call.<String>argument("id");
+        String id = call.argument("id");
 
         if (id == null || id.equals("")) {
             result.error("INVALID_ARGUMENT", "An issue ID is required to delete an issue.", null);
@@ -353,7 +342,7 @@ public final class ContentManagerPlugin {
 
     private synchronized void getIssueContentXML(final MethodCall call, final Result result) throws Exception {
 
-        String id = call.<String>argument("id");
+        String id = call.argument("id");
 
         if (id == null || id.equals("")) {
             result.error("INVALID_ARGUMENT", "An issue ID is required to retrieve content XML for an issue.", null);
@@ -388,7 +377,7 @@ public final class ContentManagerPlugin {
 
     private synchronized void getCoverImageFilePath(final MethodCall call, final Result result) throws Exception {
 
-        final String issueID = call.<String>argument("id");
+        final String issueID = call.argument("id");
 
         if (issueID == null || issueID.equals("")) {
             result.error("INVALID_ARGUMENT", "An issue ID is required to retrieve a cover image file path for an issue.", null);
@@ -416,6 +405,7 @@ public final class ContentManagerPlugin {
             return;
         }
 
+        // TODO: Use a background thread?
         // cordova.getThreadPool().execute(new Runnable() {
         //     public void run() {
                 try {
@@ -474,6 +464,7 @@ public final class ContentManagerPlugin {
             return;
         }
 
+        // TODO: Use a background thread?
         // cordova.getThreadPool().execute(new Runnable() {
         //     public void run() {
                 try {
