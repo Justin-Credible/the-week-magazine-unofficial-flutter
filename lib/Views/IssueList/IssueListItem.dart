@@ -1,18 +1,18 @@
 import "package:flutter/material.dart";
 
+import "../../Data/ContentManager.dart";
+
 class IssueListItem extends StatefulWidget {
-    IssueListItem({Key key, this.issue}) : super(key: key);
+    IssueListItem({Key key, this.issue, this.downloadStatus}) : super(key: key);
 
     final Map issue;
+    final DownloadStatus downloadStatus;
 
     @override
     _IssueListItemState createState() => new _IssueListItemState();
 }
 
 class _IssueListItemState extends State<IssueListItem> {
-
-    bool _isDownloading = false;
-    double _downloadPercentage = 0.0;
 
     void _onTap() {
         // TODO: Open issue.
@@ -24,23 +24,31 @@ class _IssueListItemState extends State<IssueListItem> {
 
     Widget _buildTrailingWidget() {
 
-        if (_isDownloading && _downloadPercentage <= 5) {
+        var isThisIssueDownloading = widget.downloadStatus != null
+                                        && widget.downloadStatus.inProgress
+                                        && widget.downloadStatus.id == widget.issue["id"];
 
-            return new SizedBox(
-                width: 20.0,
-                height: 20.0,
-                child: new CircularProgressIndicator(),
-            );
-        }
-        else if (_isDownloading) {
+        if (isThisIssueDownloading) {
 
-            return new SizedBox(
-                width: 20.0,
-                height: 20.0,
-                child: new CircularProgressIndicator(
-                    value: _downloadPercentage,
-                ),
-            );
+            var status = widget.downloadStatus;
+
+            if (status.percentage <= 5) {
+
+                return new SizedBox(
+                    width: 20.0,
+                    height: 20.0,
+                    child: new CircularProgressIndicator(),
+                );
+            }
+            else {
+                return new SizedBox(
+                    width: 20.0,
+                    height: 20.0,
+                    child: new CircularProgressIndicator(
+                        value: status.percentage.roundToDouble(),
+                    ),
+                );
+            }
         }
         else { // TODO: If already downloaded, show a checkmark icon.
             return const Icon(Icons.file_download);

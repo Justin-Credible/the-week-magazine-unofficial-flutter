@@ -1,6 +1,7 @@
 import "dart:async";
 
 import "package:flutter/services.dart";
+import "../Eventable/eventable.dart";
 
 class DownloadStatus {
 
@@ -22,28 +23,71 @@ class DownloadResult {
 }
 
 
-class ContentManager {
-    static const channel = const MethodChannel("net.justin_credible.theweek.content_manager_plugin");
+class ContentManager extends Object with EventEmitter {
 
-    static Future<Null> setContentBaseURL(String url) async {
-        return await channel.invokeMethod("setContentBaseURL", url);
+    // TODO: Move to config file.
+    static const String _url = "https://home.justin-credible.net/private/the-week/";
+
+    static ContentManager instance;
+
+    factory ContentManager() {
+
+        if (instance == null) {
+            instance = new ContentManager._internal();
+        }
+
+        return instance;
     }
 
-    static Future<Map<String, bool>> getDownloadedIssues() async {
-        return await channel.invokeMethod("getDownloadedIssues");
+    ContentManager._internal() {
+        _channel = new MethodChannel("net.justin_credible.theweek.content_manager_plugin");
+        _channel.setMethodCallHandler(_handler);
+        setContentBaseURL(_url);
     }
 
-    static Future<Null> downloadIssue(String issueID) async {
-        return await channel.invokeMethod("downloadIssue", issueID);
+    MethodChannel _channel;
+
+    Future<dynamic> _handler(MethodCall call) async {
+
+        switch (call.method) {
+            case "downloadStatusChanged":
+                {
+                    // TODO: Use debugger to determine how results are returned.
+                    // var status = new DownloadStatus(
+                    //     id: map["id"],
+                    //     inProgress: map["inProgress"],
+                    //     statusText: map["statusText"],
+                    //     percentage: map["percentage"],
+                    // );
+
+                    emitEvent(new DownloadStatus());
+
+                    break;
+                }
+            default:
+                break;
+        }
     }
 
-    static Future<Null> cancelDownload() async {
-        return await channel.invokeMethod("cancelDownload");
+    Future<Null> setContentBaseURL(String url) async {
+        return await _channel.invokeMethod("setContentBaseURL", url);
     }
 
-    static Future<DownloadStatus> getDownloadStatus() async {
+    Future<Map<String, bool>> getDownloadedIssues() async {
+        return await _channel.invokeMethod("getDownloadedIssues");
+    }
 
-        Map<String, Object> map = await channel.invokeMethod("getDownloadStatus");
+    Future<Null> downloadIssue(String issueID) async {
+        return await _channel.invokeMethod("downloadIssue", issueID);
+    }
+
+    Future<Null> cancelDownload() async {
+        return await _channel.invokeMethod("cancelDownload");
+    }
+
+    Future<DownloadStatus> getDownloadStatus() async {
+
+        Map<String, Object> map = await _channel.invokeMethod("getDownloadStatus");
 
         return new DownloadStatus(
             id: map["id"],
@@ -53,9 +97,9 @@ class ContentManager {
         );
     }
 
-    static Future<DownloadResult> getLastDownloadResult() async {
+    Future<DownloadResult> getLastDownloadResult() async {
 
-        Map<String, Object> map = await channel.invokeMethod("getLastDownloadResult");
+        Map<String, Object> map = await _channel.invokeMethod("getLastDownloadResult");
 
         return new DownloadResult(
             message: map["message"],
@@ -64,23 +108,23 @@ class ContentManager {
         );
     }
 
-    static Future<Null> deleteIssue(String issueID) async {
-        return await channel.invokeMethod("deleteIssue", issueID);
+    Future<Null> deleteIssue(String issueID) async {
+        return await _channel.invokeMethod("deleteIssue", issueID);
     }
 
-    static Future<String> getIssueContentXML(String issueID) async {
-        return await channel.invokeMethod("getIssueContentXML", issueID);
+    Future<String> getIssueContentXML(String issueID) async {
+        return await _channel.invokeMethod("getIssueContentXML", issueID);
     }
 
-    static Future<String> getCoverImageFilePath(String issueID) async {
-        return await channel.invokeMethod("getCoverImageFilePath", issueID);
+    Future<String> getCoverImageFilePath(String issueID) async {
+        return await _channel.invokeMethod("getCoverImageFilePath", issueID);
     }
 
-    static Future<int> getDownloadedIssuesSize() async {
-        return await channel.invokeMethod("getDownloadedIssuesSize");
+    Future<int> getDownloadedIssuesSize() async {
+        return await _channel.invokeMethod("getDownloadedIssuesSize");
     }
 
-    static Future<Null> deleteAllDownloadedIssues() async {
-        return await channel.invokeMethod("deleteAllDownloadedIssues");
+    Future<Null> deleteAllDownloadedIssues() async {
+        return await _channel.invokeMethod("deleteAllDownloadedIssues");
     }
 }

@@ -3,6 +3,7 @@ package net.justin_credible.theweek;
 import android.app.Activity;
 import android.content.Context;
 
+import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.MethodCall;
 
@@ -14,13 +15,28 @@ import java.util.Map;
 public final class ContentManagerPlugin {
 
     private Activity activity;
+    private MethodChannel channel;
     private String baseContentURL;
     private DownloadTask currentDownloadTask;
     private DownloadStatus currentDownloadStatus = new DownloadStatus();
     private DownloadResult lastDownloadResult;
 
-    ContentManagerPlugin(Activity activity) {
+    ContentManagerPlugin(Activity activity, MethodChannel channel) {
         this.activity = activity;
+        this.channel = channel;
+
+        channel.setMethodCallHandler(
+            new MethodChannel.MethodCallHandler() {
+                @Override
+                public void onMethodCall(MethodCall call, Result result) {
+
+                    boolean handled = execute(call, result);
+
+                    if (!handled) {
+                        result.notImplemented();
+                    }
+                }
+            });
     }
 
     //region Plugin Entry Point
@@ -39,7 +55,7 @@ public final class ContentManagerPlugin {
                 this.setContentBaseURL(call, result);
             }
             catch (Exception exception) {
-                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.setContentBaseURL() uncaught exception.", exception.getMessage());
+                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.setContentBaseURL() uncaught exception: " + exception.getMessage(), exception.getMessage());
             }
 
             return true;
@@ -50,7 +66,7 @@ public final class ContentManagerPlugin {
                 this.getDownloadedIssues(result);
             }
             catch (Exception exception) {
-                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.getDownloadedIssues() uncaught exception.", exception.getMessage());
+                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.getDownloadedIssues() uncaught exception: " + exception.getMessage(), exception.getMessage());
             }
 
             return true;
@@ -61,7 +77,7 @@ public final class ContentManagerPlugin {
                 this.downloadIssue(call, result);
             }
             catch (Exception exception) {
-                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.downloadIssue() uncaught exception.", exception.getMessage());
+                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.downloadIssue() uncaught exception: " + exception.getMessage(), exception.getMessage());
             }
 
             return true;
@@ -72,7 +88,7 @@ public final class ContentManagerPlugin {
                 this.cancelDownload(result);
             }
             catch (Exception exception) {
-                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.cancelDownload() uncaught exception.", exception.getMessage());
+                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.cancelDownload() uncaught exception: " + exception.getMessage(), exception.getMessage());
             }
 
             return true;
@@ -83,7 +99,7 @@ public final class ContentManagerPlugin {
                 this.getDownloadStatus(result);
             }
             catch (Exception exception) {
-                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.getDownloadStatus() uncaught exception.", exception.getMessage());
+                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.getDownloadStatus() uncaught exception: " + exception.getMessage(), exception.getMessage());
             }
 
             return true;
@@ -94,7 +110,7 @@ public final class ContentManagerPlugin {
                 this.getLastDownloadResult(result);
             }
             catch (Exception exception) {
-                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.getLastDownloadResult() uncaught exception.", exception.getMessage());
+                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.getLastDownloadResult() uncaught exception: " + exception.getMessage(), exception.getMessage());
             }
 
             return true;
@@ -105,7 +121,7 @@ public final class ContentManagerPlugin {
                 this.deleteIssue(call, result);
             }
             catch (Exception exception) {
-                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.deleteIssue() uncaught exception.", exception.getMessage());
+                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.deleteIssue() uncaught exception: " + exception.getMessage(), exception.getMessage());
             }
 
             return true;
@@ -116,7 +132,7 @@ public final class ContentManagerPlugin {
                 this.getIssueContentXML(call, result);
             }
             catch (Exception exception) {
-                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.getIssueContentXML() uncaught exception.", exception.getMessage());
+                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.getIssueContentXML() uncaught exception: " + exception.getMessage(), exception.getMessage());
             }
 
             return true;
@@ -127,7 +143,7 @@ public final class ContentManagerPlugin {
                 this.getCoverImageFilePath(call, result);
             }
             catch (Exception exception) {
-                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.getCoverImageFilePath() uncaught exception.", exception.getMessage());
+                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.getCoverImageFilePath() uncaught exception: " + exception.getMessage(), exception.getMessage());
             }
 
             return true;
@@ -138,7 +154,7 @@ public final class ContentManagerPlugin {
                 this.getDownloadedIssuesSize(result);
             }
             catch (Exception exception) {
-                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.getDownloadedIssuesSize() uncaught exception.", exception.getMessage());
+                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.getDownloadedIssuesSize() uncaught exception: " + exception.getMessage(), exception.getMessage());
             }
 
             return true;
@@ -149,7 +165,7 @@ public final class ContentManagerPlugin {
                 this.deleteAllDownloadedIssues(result);
             }
             catch (Exception exception) {
-                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.deleteAllDownloadedIssues() uncaught exception.", exception.getMessage());
+                result.error("UNCAUGHT_EXCEPTION", "ContentManagerPlugin.deleteAllDownloadedIssues() uncaught exception: " + exception.getMessage(), exception.getMessage());
             }
 
             return true;
@@ -166,6 +182,7 @@ public final class ContentManagerPlugin {
 
     private synchronized void setContentBaseURL(final MethodCall call, final Result result) {
 
+        // TODO: Update all statements to get arguments; call.argument is a string at this point.
         String baseContentURL = call.argument("url");
 
         if (baseContentURL == null || baseContentURL.equals("")) {
@@ -237,6 +254,7 @@ public final class ContentManagerPlugin {
             @Override
             protected void onProgressUpdate(DownloadStatus... status) {
                 currentDownloadStatus = status[0];
+                channel.invokeMethod("downloadStatusChanged", status[0]);
             }
 
             @Override
@@ -252,6 +270,7 @@ public final class ContentManagerPlugin {
                 currentDownloadStatus = new DownloadStatus();
                 lastDownloadResult = new DownloadResult("Download was cancelled.");
                 lastDownloadResult.cancelled = true;
+                channel.invokeMethod("downloadStatusChanged", currentDownloadStatus);
             }
         };
 
