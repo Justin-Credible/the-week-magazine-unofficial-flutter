@@ -56,6 +56,7 @@ class IssueListState extends State<IssueList> {
     _onDownloadStatusChanged(DownloadStatus status) {
 
         setState(() {
+            print("DownloadStatusChanged: ${status.id} / ${status.inProgress} / ${status.percentage} / ${status.statusText}");
             _downloadStatus = status;
         });
     }

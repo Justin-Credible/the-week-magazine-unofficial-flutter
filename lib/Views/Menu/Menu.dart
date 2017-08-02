@@ -1,5 +1,11 @@
+import "dart:core";
+import "dart:async";
+
 import "package:flutter/widgets.dart";
 import "package:flutter/material.dart";
+
+import "../../UIHelper.dart";
+import "../../Data/ContentManager.dart";
 
 class Menu extends StatefulWidget {
     Menu({Key key}) : super(key: key);
@@ -10,12 +16,29 @@ class Menu extends StatefulWidget {
 
 class _MenuState extends State<Menu> {
 
+    int _totalIssueSizeOnDisk = -1;
+
     void _issuesOnTap() {
         // TODO
     }
 
-    void _storageOnTap() {
-        // TODO
+    Future<Null> _storageOnTap(BuildContext context) async {
+
+        var message = "Are you sure you want to delete all of the downloaded issues?";
+        var title = "Delete All Issues";
+        var result = await UIHelper.confirm(message: message, title: title, context: context);
+
+        if (result == "Yes") {
+
+            // TODO: Show model activity spinner, dismiss on complete.
+
+            await ContentManager.instance.deleteAllDownloadedIssues();
+
+            // TODO: Show toast message indicating result
+            // TODO: Fire event so root can refresh the list.
+
+            _calculateTotalSpaceUsedDisplay();
+        }
     }
 
     void _downloadSwitchChanged(bool value) {
@@ -25,6 +48,23 @@ class _MenuState extends State<Menu> {
     void _aboutOnTap() {
         Navigator.pop(context);
         Navigator.of(context).pushNamed("/about");
+    }
+
+    void _calculateTotalSpaceUsedDisplay() {
+
+        ContentManager.instance.getDownloadedIssuesSize().then((int totalIssueSizeOnDisk) {
+
+            setState(() {
+                _totalIssueSizeOnDisk = (totalIssueSizeOnDisk / 1024 / 1024).ceil();
+            });
+        });
+    }
+
+    @override
+    initState() {
+        super.initState();
+
+        _calculateTotalSpaceUsedDisplay();
     }
 
     @override
@@ -64,9 +104,9 @@ class _MenuState extends State<Menu> {
                     new ListTile(
                         leading: const Icon(Icons.storage),
                         title: const Text("Storage Used"),
-                        trailing: const Text("32MB"), // TODO
-                        subtitle: const Text("Calculating..."), // TODO
-                        onTap: _storageOnTap,
+                        trailing: _totalIssueSizeOnDisk == -1 ? new CircularProgressIndicator() : new Text("${_totalIssueSizeOnDisk} MB"),
+                        subtitle: _totalIssueSizeOnDisk == -1 ? const Text("Calculating...") : const Text("Tap to clear"),
+                        onTap: () { _storageOnTap(context); },
                     ),
 
                     new ListTile(

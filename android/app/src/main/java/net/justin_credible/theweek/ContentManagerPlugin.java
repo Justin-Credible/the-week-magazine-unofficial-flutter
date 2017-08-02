@@ -238,13 +238,18 @@ public final class ContentManagerPlugin {
             return;
         }
 
-        String id = call.argument("id");
+        String issueID = call.argument("id");
+
+        if (issueID == null || issueID.equals("")) {
+            result.error("INVALID_ARGUMENT", "An issue ID is required to retrieve a cover image file path for an issue.", null);
+            return;
+        }
 
         // Create an initial status so there is something to return if the client queries for
         // the status before the download task has gotten to do any work.
         currentDownloadStatus = new DownloadStatus();
         currentDownloadStatus.inProgress = true;
-        currentDownloadStatus.id = id;
+        currentDownloadStatus.id = issueID;
         currentDownloadStatus.statusText = "Starting";
         currentDownloadStatus.percentage = 0;
 
@@ -253,7 +258,7 @@ public final class ContentManagerPlugin {
             @Override
             protected void onProgressUpdate(DownloadStatus... status) {
                 currentDownloadStatus = status[0];
-                channel.invokeMethod("downloadStatusChanged", status[0]);
+                channel.invokeMethod("downloadStatusChanged", status[0].toMap());
             }
 
             @Override
@@ -261,6 +266,7 @@ public final class ContentManagerPlugin {
                 currentDownloadTask = null;
                 currentDownloadStatus = new DownloadStatus();
                 lastDownloadResult = result;
+                channel.invokeMethod("downloadStatusChanged", currentDownloadStatus.toMap());
             }
 
             @Override
@@ -269,7 +275,7 @@ public final class ContentManagerPlugin {
                 currentDownloadStatus = new DownloadStatus();
                 lastDownloadResult = new DownloadResult("Download was cancelled.");
                 lastDownloadResult.cancelled = true;
-                channel.invokeMethod("downloadStatusChanged", currentDownloadStatus);
+                channel.invokeMethod("downloadStatusChanged", currentDownloadStatus.toMap());
             }
         };
 
@@ -279,7 +285,7 @@ public final class ContentManagerPlugin {
         currentDownloadTask.setBaseContentURL(baseContentURL);
 
         try {
-            currentDownloadTask.execute(id);
+            currentDownloadTask.execute(issueID);
         }
         catch (Exception exception) {
 
@@ -323,12 +329,7 @@ public final class ContentManagerPlugin {
             result.success(null);
         }
 
-        Map<String, Object> resultMap = new HashMap<>();
-        resultMap.put("message", lastDownloadResult.message);
-        resultMap.put("success", lastDownloadResult.success);
-        resultMap.put("cancelled", lastDownloadResult.cancelled);
-
-        result.success(resultMap);
+        result.success(lastDownloadResult.toMap());
     }
 
     private synchronized void deleteIssue(final MethodCall call, final Result result) throws Exception {
@@ -423,7 +424,7 @@ public final class ContentManagerPlugin {
             return;
         }
 
-        // TODO: Use a background thread?
+        // TODO: Use a background thread.
         // cordova.getThreadPool().execute(new Runnable() {
         //     public void run() {
                 try {
@@ -463,7 +464,6 @@ public final class ContentManagerPlugin {
         result.success((int)totalSize);
     }
 
-
     private synchronized void deleteAllDownloadedIssues(final Result result) throws Exception {
 
         if (currentDownloadStatus != null && currentDownloadStatus.inProgress) {
@@ -482,7 +482,7 @@ public final class ContentManagerPlugin {
             return;
         }
 
-        // TODO: Use a background thread?
+        // TODO: Use a background thread.
         // cordova.getThreadPool().execute(new Runnable() {
         //     public void run() {
                 try {

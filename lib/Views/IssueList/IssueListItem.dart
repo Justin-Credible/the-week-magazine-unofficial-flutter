@@ -54,7 +54,7 @@ class _IssueListItemState extends State<IssueListItem> {
                     width: 20.0,
                     height: 20.0,
                     child: new CircularProgressIndicator(
-                        value: status.percentage.roundToDouble(),
+                        value: status.percentage.roundToDouble() * 0.01,
                     ),
                 );
             }

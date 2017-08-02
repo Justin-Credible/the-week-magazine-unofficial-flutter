@@ -53,15 +53,14 @@ class ContentManager {
         switch (call.method) {
             case "downloadStatusChanged":
                 {
-                    // TODO: Use debugger to determine how results are returned.
-                    // var status = new DownloadStatus(
-                    //     id: map["id"],
-                    //     inProgress: map["inProgress"],
-                    //     statusText: map["statusText"],
-                    //     percentage: map["percentage"],
-                    // );
+                    var status = new DownloadStatus(
+                        id: call.arguments["id"],
+                        inProgress: call.arguments["inProgress"],
+                        statusText: call.arguments["statusText"],
+                        percentage: call.arguments["percentage"],
+                    );
 
-                    _fireDownloadStatusChangedListeners(new DownloadStatus());
+                    _fireDownloadStatusChangedListeners(status);
 
                     break;
                 }
@@ -97,7 +96,7 @@ class ContentManager {
 
     Future<Null> downloadIssue(String issueID) async {
         return await _channel.invokeMethod("downloadIssue", {
-            "issueID": issueID
+            "id": issueID
         });
     }
 
@@ -130,19 +129,19 @@ class ContentManager {
 
     Future<Null> deleteIssue(String issueID) async {
         return await _channel.invokeMethod("deleteIssue", {
-            "issueID": issueID,
+            "id": issueID,
         });
     }
 
     Future<String> getIssueContentXML(String issueID) async {
         return await _channel.invokeMethod("getIssueContentXML", {
-            "issueID": issueID,
+            "id": issueID,
         });
     }
 
     Future<String> getCoverImageFilePath(String issueID) async {
         return await _channel.invokeMethod("getCoverImageFilePath", {
-            "issueID": issueID,
+            "id": issueID,
         });
     }
 
