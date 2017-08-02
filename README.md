@@ -13,4 +13,6 @@ I am not affiliated with _The Week_ in any way.
 
 # Flutter Port
 
-I originally wrote [this app](https://github.com/Justin-Credible/the-week-magazine-unofficial) in TypeScript and Java Cordova; this repo contains a port of the app to [Flutter](https://flutter.io/).
+I originally wrote [this app](https://github.com/Justin-Credible/the-week-magazine-unofficial) in TypeScript and Java with Ionic for the user interface. As a learning exercise, this is a port of the app to Dart with [Flutter](https://flutter.io/) for the user interface.
+
+:warning: This port is a work in progress! :warning:
