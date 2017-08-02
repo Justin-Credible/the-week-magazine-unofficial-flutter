@@ -182,7 +182,6 @@ public final class ContentManagerPlugin {
 
     private synchronized void setContentBaseURL(final MethodCall call, final Result result) {
 
-        // TODO: Update all statements to get arguments; call.argument is a string at this point.
         String baseContentURL = call.argument("url");
 
         if (baseContentURL == null || baseContentURL.equals("")) {

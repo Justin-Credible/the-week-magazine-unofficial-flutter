@@ -1,7 +1,6 @@
 import "dart:async";
 
 import "package:flutter/services.dart";
-import "../Eventable/eventable.dart";
 
 class DownloadStatus {
 
@@ -22,8 +21,9 @@ class DownloadResult {
     DownloadResult({this.message, this.success, this.cancelled});
 }
 
+typedef void DownloadStatusChangedHandler(DownloadStatus status);
 
-class ContentManager extends Object with EventEmitter {
+class ContentManager {
 
     // TODO: Move to config file.
     static const String _url = "https://home.justin-credible.net/private/the-week/";
@@ -46,6 +46,7 @@ class ContentManager extends Object with EventEmitter {
     }
 
     MethodChannel _channel;
+    Map<String, DownloadStatusChangedHandler> _downloadStatusChangedHandlers = new Map();
 
     Future<dynamic> _handler(MethodCall call) async {
 
@@ -60,7 +61,7 @@ class ContentManager extends Object with EventEmitter {
                     //     percentage: map["percentage"],
                     // );
 
-                    emitEvent(new DownloadStatus());
+                    _fireDownloadStatusChangedListeners(new DownloadStatus());
 
                     break;
                 }
@@ -69,8 +70,25 @@ class ContentManager extends Object with EventEmitter {
         }
     }
 
+    addDownloadStatusChangedListener(String listenerID, DownloadStatusChangedHandler handler) {
+        _downloadStatusChangedHandlers[listenerID] = handler;
+    }
+
+    removeDownloadStatusChangedListener(String listenerID) {
+        _downloadStatusChangedHandlers.remove(listenerID);
+    }
+
+    _fireDownloadStatusChangedListeners(DownloadStatus status) {
+
+        _downloadStatusChangedHandlers.forEach((String listenerID, DownloadStatusChangedHandler handler) {
+            handler(status);
+        });
+    }
+
     Future<Null> setContentBaseURL(String url) async {
-        return await _channel.invokeMethod("setContentBaseURL", url);
+        return await _channel.invokeMethod("setContentBaseURL", {
+            "url": url,
+        });
     }
 
     Future<Map<String, bool>> getDownloadedIssues() async {
@@ -78,7 +96,9 @@ class ContentManager extends Object with EventEmitter {
     }
 
     Future<Null> downloadIssue(String issueID) async {
-        return await _channel.invokeMethod("downloadIssue", issueID);
+        return await _channel.invokeMethod("downloadIssue", {
+            "issueID": issueID
+        });
     }
 
     Future<Null> cancelDownload() async {
@@ -109,15 +129,21 @@ class ContentManager extends Object with EventEmitter {
     }
 
     Future<Null> deleteIssue(String issueID) async {
-        return await _channel.invokeMethod("deleteIssue", issueID);
+        return await _channel.invokeMethod("deleteIssue", {
+            "issueID": issueID,
+        });
     }
 
     Future<String> getIssueContentXML(String issueID) async {
-        return await _channel.invokeMethod("getIssueContentXML", issueID);
+        return await _channel.invokeMethod("getIssueContentXML", {
+            "issueID": issueID,
+        });
     }
 
     Future<String> getCoverImageFilePath(String issueID) async {
-        return await _channel.invokeMethod("getCoverImageFilePath", issueID);
+        return await _channel.invokeMethod("getCoverImageFilePath", {
+            "issueID": issueID,
+        });
     }
 
     Future<int> getDownloadedIssuesSize() async {

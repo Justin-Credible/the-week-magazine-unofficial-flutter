@@ -22,6 +22,15 @@ class _IssueListItemState extends State<IssueListItem> {
         // TODO: Show issue file size info, offer to delete.
     }
 
+    void _onDownloadButtonPressed() {
+
+        if (widget.downloadStatus != null && widget.downloadStatus.inProgress) {
+            return;
+        }
+
+        ContentManager.instance.downloadIssue(widget.issue["id"]);
+    }
+
     Widget _buildTrailingWidget() {
 
         var isThisIssueDownloading = widget.downloadStatus != null
@@ -51,7 +60,11 @@ class _IssueListItemState extends State<IssueListItem> {
             }
         }
         else { // TODO: If already downloaded, show a checkmark icon.
-            return const Icon(Icons.file_download);
+            //return const Icon(Icons.file_download);
+            return new IconButton(
+                icon: const Icon(Icons.file_download),
+                onPressed: _onDownloadButtonPressed,
+            );
         }
     }
 

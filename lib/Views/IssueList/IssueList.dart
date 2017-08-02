@@ -1,7 +1,6 @@
 import "dart:async";
 
 import "package:flutter/material.dart";
-import "../../Eventable/eventable.dart";
 
 import "../../Data/Cache.dart";
 import "../../Data/MagazineDataSource.dart";
@@ -17,7 +16,7 @@ class IssueList extends StatefulWidget {
     IssueListState createState() => new IssueListState();
 }
 
-class IssueListState extends State<IssueList> with EventDetector {
+class IssueListState extends State<IssueList> {
 
     final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
 
@@ -54,10 +53,10 @@ class IssueListState extends State<IssueList> with EventDetector {
         return completer.future;
     }
 
-    _onDownloadStatusChanged(Event<DownloadStatus> event) {
+    _onDownloadStatusChanged(DownloadStatus status) {
 
         setState(() {
-            _downloadStatus = event.data;
+            _downloadStatus = status;
         });
     }
 
@@ -65,7 +64,7 @@ class IssueListState extends State<IssueList> with EventDetector {
     initState() {
         super.initState();
 
-        listen(_contentManager, DownloadStatus, _onDownloadStatusChanged);
+        _contentManager.addDownloadStatusChangedListener("IssueList", _onDownloadStatusChanged);
 
         _showSpinner = true;
         _doRefresh(false);
