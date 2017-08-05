@@ -2,6 +2,8 @@ import "dart:async";
 
 import "package:flutter/material.dart";
 
+import "../../Utilities.dart";
+import "../../UIHelper.dart";
 import "../../Data/Cache.dart";
 import "../../Data/MagazineDataSource.dart";
 import "../../Data/ContentManager.dart";
@@ -31,26 +33,23 @@ class IssueListState extends State<IssueList> {
         return _refreshIndicatorKey.currentState.show();
     }
 
-    Future<Null> _doRefresh(bool forceRefresh) {
-
-        var completer = new Completer();
+    Future<Null> _doRefresh(bool forceRefresh) async {
 
         var cacheBehavior = forceRefresh ? CacheBehavior.InvalidateCache : CacheBehavior.AllowStale;
 
-        MagazineDataSource.retrieveIssueFeed(cacheBehavior)
-            .then((Map feed) {
+        var result = await on(MagazineDataSource.retrieveIssueFeed(cacheBehavior));
 
-            var entries = feed["entry"];
+        setState(() { _showSpinner = false; });
 
-            setState(() { _entries = entries; });
+        if (result.error != null) {
+            UIHelper.showSnackBar(message: "Error refreshing list.", color: Colors.red, context: context);
+            return;
+        }
 
-            completer.complete(null);
+        Map feed = result.data;
+        var entries = feed["entry"];
 
-        }).whenComplete(() {
-            setState(() { _showSpinner = false; });
-        });
-
-        return completer.future;
+        setState(() { _entries = entries; });
     }
 
     _onDownloadStatusChanged(DownloadStatus status) {

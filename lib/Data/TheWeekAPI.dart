@@ -5,14 +5,13 @@ import "package:http/http.dart";
 import "package:flutter/services.dart";
 import "package:xml2json/xml2json.dart";
 
-// TODO: Switch methods to use async keyword.
 class TheWeekAPI {
 
     // TODO: Move to config file.
     // static String _url = "https://magazine.theweek.com/endpoint.xml";
     static const String _url = "https://home.justin-credible.net/private/the-week/endpoint.xml";
 
-    static Future<Map> retrieveIssueFeed() {
+    static Future<Map> retrieveIssueFeed() async {
 
         var completer = new Completer<Map>();
 

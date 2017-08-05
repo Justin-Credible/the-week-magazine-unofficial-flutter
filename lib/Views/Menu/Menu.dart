@@ -4,6 +4,7 @@ import "dart:async";
 import "package:flutter/widgets.dart";
 import "package:flutter/material.dart";
 
+import "../../Utilities.dart";
 import "../../UIHelper.dart";
 import "../../Data/ContentManager.dart";
 
@@ -30,14 +31,19 @@ class _MenuState extends State<Menu> {
 
         if (result == "Yes") {
 
-            // TODO: Show model activity spinner, dismiss on complete.
+            // TODO: Show blocking modal activity spinner, dismiss on complete.
 
-            await ContentManager.instance.deleteAllDownloadedIssues();
+            var result = await on(ContentManager.instance.deleteAllDownloadedIssues());
 
-            // TODO: Show toast message indicating result
-            // TODO: Fire event so root can refresh the list.
+            if (result.error != null) {
+                UIHelper.showSnackBar(message: "Error deleting all issues.", color: Colors.red, context: context);
+            }
+            else {
+                UIHelper.showSnackBar(message: "All issues deleted.", context: context);
+                // TODO: Fire event so root can refresh the list.
+            }
 
-            _calculateTotalSpaceUsedDisplay();
+            Navigator.pop(context);
         }
     }
 
@@ -50,13 +56,12 @@ class _MenuState extends State<Menu> {
         Navigator.of(context).pushNamed("/about");
     }
 
-    void _calculateTotalSpaceUsedDisplay() {
+    Future<Null> _calculateTotalSpaceUsedDisplay() async {
 
-        ContentManager.instance.getDownloadedIssuesSize().then((int totalIssueSizeOnDisk) {
+        var totalIssueSizeOnDisk = await ContentManager.instance.getDownloadedIssuesSize();
 
-            setState(() {
-                _totalIssueSizeOnDisk = (totalIssueSizeOnDisk / 1024 / 1024).ceil();
-            });
+        setState(() {
+            _totalIssueSizeOnDisk = (totalIssueSizeOnDisk / 1024 / 1024).ceil();
         });
     }
 

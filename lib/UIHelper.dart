@@ -37,4 +37,19 @@ class UIHelper {
 
         return completer.future;
     }
+
+    static Future<Null> showSnackBar({String message, Color color, BuildContext context}) async {
+        var completer = new Completer();
+
+        var snackBar = new SnackBar(
+            content: new Text(message),
+            backgroundColor: color,
+        );
+
+        Scaffold.of(context).showSnackBar(snackBar);
+
+        // TODO: Support passing in text for an action button and resolve with result when pressed.
+        completer.complete();
+        return completer.future;
+    }
 }
