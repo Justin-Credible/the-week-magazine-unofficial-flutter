@@ -19,17 +19,21 @@ class _MenuState extends State<Menu> {
 
     int _totalIssueSizeOnDisk = -1;
 
-    void _issuesOnTap() {
-        // TODO
-    }
-
     Future<Null> _storageOnTap(BuildContext context) async {
+
+        var downloadStatus = await ContentManager.instance.getDownloadStatus();
+
+        if (downloadStatus != null && downloadStatus.inProgress) {
+            UIHelper.showSnackBar(message: "Download in progress; please wait.", context: context);
+            Navigator.pop(context);
+            return;
+        }
 
         var message = "Are you sure you want to delete all of the downloaded issues?";
         var title = "Delete All Issues";
         var result = await UIHelper.confirm(message: message, title: title, context: context);
 
-        if (result == "Yes") {
+        if (result == Buttons.Yes) {
 
             // TODO: Show blocking modal activity spinner, dismiss on complete.
 
@@ -95,7 +99,6 @@ class _MenuState extends State<Menu> {
                     new ListTile(
                         leading: const Icon(Icons.description),
                         title: const Text("Issues"),
-                        onTap: _issuesOnTap,
                     ),
 
                     new Container(

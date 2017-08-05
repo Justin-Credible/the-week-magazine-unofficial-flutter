@@ -1,12 +1,17 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
 
+import "../../Utilities.dart";
+import "../../UIHelper.dart";
 import "../../Data/ContentManager.dart";
 
 class IssueListItem extends StatefulWidget {
-    IssueListItem({Key key, this.issue, this.downloadStatus}) : super(key: key);
+    IssueListItem({Key key, this.issue, this.downloadStatus, this.isDownloaded}) : super(key: key);
 
     final Map issue;
     final DownloadStatus downloadStatus;
+    final bool isDownloaded;
 
     @override
     _IssueListItemState createState() => new _IssueListItemState();
@@ -15,11 +20,39 @@ class IssueListItem extends StatefulWidget {
 class _IssueListItemState extends State<IssueListItem> {
 
     void _onTap() {
-        // TODO: Open issue.
+
+        if (widget.isDownloaded) {
+            _openIssue(widget.issue["id"]);
+        }
     }
 
-    void _onLongPress() {
-        // TODO: Show issue file size info, offer to delete.
+    Future<Null> _onLongPress() async {
+
+        if (!widget.isDownloaded) {
+            return;
+        }
+
+        var message = "Are you sure you want to delete this issue?\n\n${widget.issue['title']}";
+        var title = "Confirm Delete";
+
+        var result = await UIHelper.confirm(message: message, title: title, context: context);
+
+        if (result == Buttons.Yes) {
+
+            // TODO: Show blocking modal activity spinner, dismiss on complete.
+            var deleteResult = await on(ContentManager.instance.deleteIssue(widget.issue["id"]));
+
+            if (deleteResult.error != null) {
+                UIHelper.showSnackBar(message: "Error deleting issue", color: Colors.red, context: context);
+                return;
+            }
+
+            UIHelper.showSnackBar(message: "Issue Deleted", context: context);
+        }
+    }
+
+    void _onOpenIssueButtonPressed() {
+        _openIssue(widget.issue["id"]);
     }
 
     void _onDownloadButtonPressed() {
@@ -29,6 +62,10 @@ class _IssueListItemState extends State<IssueListItem> {
         }
 
         ContentManager.instance.downloadIssue(widget.issue["id"]);
+    }
+
+    _openIssue(String issueID) {
+        // TODO: Navigate to article list.
     }
 
     Widget _buildTrailingWidget() {
@@ -59,8 +96,13 @@ class _IssueListItemState extends State<IssueListItem> {
                 );
             }
         }
-        else { // TODO: If already downloaded, show a checkmark icon.
-            //return const Icon(Icons.file_download);
+        else if (widget.isDownloaded) {
+            return new IconButton(
+                icon: const Icon(Icons.keyboard_arrow_right),
+                onPressed: _onOpenIssueButtonPressed,
+            );
+        }
+        else {
             return new IconButton(
                 icon: const Icon(Icons.file_download),
                 onPressed: _onDownloadButtonPressed,
