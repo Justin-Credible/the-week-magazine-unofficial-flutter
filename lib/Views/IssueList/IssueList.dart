@@ -60,11 +60,18 @@ class IssueListState extends State<IssueList> {
         });
     }
 
+    _onIssueDeleted() {
+
+        // Tell the refresh indicator to perform a refresh if one isn't already in progress.
+        _refreshIndicatorKey.currentState.show();
+    }
+
     @override
     initState() {
         super.initState();
 
         _contentManager.addDownloadStatusChangedListener("IssueList", _onDownloadStatusChanged);
+        _contentManager.addIssueDeletedListener("IssueList", _onIssueDeleted);
 
         _showSpinner = true;
         _doRefresh(false);

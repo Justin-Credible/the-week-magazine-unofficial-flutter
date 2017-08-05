@@ -40,7 +40,6 @@ class _MenuState extends State<Menu> {
             }
             else {
                 UIHelper.showSnackBar(message: "All issues deleted.", context: context);
-                // TODO: Fire event so root can refresh the list.
             }
 
             Navigator.pop(context);

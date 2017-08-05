@@ -22,6 +22,7 @@ class DownloadResult {
 }
 
 typedef void DownloadStatusChangedHandler(DownloadStatus status);
+typedef void IssueDeletedHandler();
 
 class ContentManager {
 
@@ -47,6 +48,7 @@ class ContentManager {
 
     MethodChannel _channel;
     Map<String, DownloadStatusChangedHandler> _downloadStatusChangedHandlers = new Map();
+    Map<String, IssueDeletedHandler> _issueDeletedHandlers = new Map();
 
     Future<dynamic> _handler(MethodCall call) async {
 
@@ -81,6 +83,21 @@ class ContentManager {
 
         _downloadStatusChangedHandlers.forEach((String listenerID, DownloadStatusChangedHandler handler) {
             handler(status);
+        });
+    }
+
+    addIssueDeletedListener(String listenerID, IssueDeletedHandler handler) {
+        _issueDeletedHandlers[listenerID] = handler;
+    }
+
+    removeIssueDeletedListener(String listenerID) {
+        _issueDeletedHandlers.remove(listenerID);
+    }
+
+    _fireIssueDeletedListeners() {
+
+        _issueDeletedHandlers.forEach((String listenerID, IssueDeletedHandler handler) {
+            handler();
         });
     }
 
@@ -128,9 +145,14 @@ class ContentManager {
     }
 
     Future<Null> deleteIssue(String issueID) async {
-        return await _channel.invokeMethod("deleteIssue", {
+
+        var result = await _channel.invokeMethod("deleteIssue", {
             "id": issueID,
         });
+
+        _fireIssueDeletedListeners();
+
+        return result;
     }
 
     Future<String> getIssueContentXML(String issueID) async {
@@ -150,6 +172,11 @@ class ContentManager {
     }
 
     Future<Null> deleteAllDownloadedIssues() async {
-        return await _channel.invokeMethod("deleteAllDownloadedIssues");
+
+        var result = await _channel.invokeMethod("deleteAllDownloadedIssues");
+
+        _fireIssueDeletedListeners();
+
+        return result;
     }
 }
