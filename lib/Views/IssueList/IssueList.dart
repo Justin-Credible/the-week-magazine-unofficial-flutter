@@ -5,6 +5,7 @@ import "package:flutter/material.dart";
 import "../../Utilities.dart";
 import "../../UIHelper.dart";
 import "../../Data/Cache.dart";
+import "../../Data/Issue.dart";
 import "../../Data/MagazineDataSource.dart";
 import "../../Data/ContentManager.dart";
 import "IssueListItem.dart";
@@ -25,7 +26,7 @@ class IssueListState extends State<IssueList> {
     ContentManager _contentManager = new ContentManager();
     bool _showSpinner = false;
     DownloadStatus _downloadStatus;
-    List _entries = new List();
+    List _issues = new List<Issue>();
     Map<String, bool> _downloadedIssuesMap = new Map();
 
     Future<Null> refresh() {
@@ -51,10 +52,7 @@ class IssueListState extends State<IssueList> {
             return;
         }
 
-        Map feed = issueFeedResult.data;
-        var entries = feed["entry"];
-
-        setState(() { _entries = entries; });
+        setState(() { _issues = issueFeedResult.data; });
 
         var downloadedIssuesResult = await on(ContentManager.instance.getDownloadedIssues());
 
@@ -109,7 +107,7 @@ class IssueListState extends State<IssueList> {
                     child: new CircularProgressIndicator()
                 );
             }
-            else if (_entries == null || _entries.length == 0) {
+            else if (_issues == null || _issues.length == 0) {
 
                 return new Container(
                     padding: new EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
@@ -131,17 +129,17 @@ class IssueListState extends State<IssueList> {
 
                 return new ListView.builder(
                     padding: kMaterialListPadding,
-                    itemCount: _entries.length,
+                    itemCount: _issues.length,
 
                     itemBuilder: (BuildContext context, int index) {
 
-                        Map entry = _entries[index];
+                        Issue issue = _issues[index];
 
-                        bool isDownloaded = _downloadedIssuesMap[entry["id"]] ?? false;
+                        bool isDownloaded = _downloadedIssuesMap[issue.id] ?? false;
 
                         return new Column(
                             children: [
-                                new IssueListItem(issue: entry, downloadStatus: _downloadStatus, isDownloaded: isDownloaded),
+                                new IssueListItem(issue: issue, downloadStatus: _downloadStatus, isDownloaded: isDownloaded),
                                 new Divider(),
                             ]
                         );

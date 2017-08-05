@@ -2,14 +2,15 @@ import "dart:async";
 
 import "Cache.dart";
 import "TheWeekAPI.dart";
+import "Issue.dart";
 
 class MagazineDataSource {
 
-    static Future<Map> retrieveIssueFeed([CacheBehavior cacheBehavior = CacheBehavior.Default]) async {
+    static Future<List<Issue>> retrieveIssueFeed([CacheBehavior cacheBehavior = CacheBehavior.Default]) async {
 
-        var completer = new Completer<Map>();
+        var completer = new Completer<List<Issue>>();
 
-        var entry = Cache.get<Map>("Issue_Feed", cacheBehavior);
+        var entry = Cache.get<List<Issue>>("Issue_Feed", cacheBehavior);
 
         if (entry != null) {
             completer.complete(entry.item);
@@ -17,12 +18,12 @@ class MagazineDataSource {
         }
 
         TheWeekAPI.retrieveIssueFeed()
-            .then((Map feed) {
+            .then((List<Issue> issues) {
 
-            var entry = new CacheEntry(feed, new Duration(days: 1));
+            var entry = new CacheEntry(issues, new Duration(days: 1));
             Cache.set("Issue_Feed", entry);
 
-            completer.complete(feed);
+            completer.complete(issues);
 
         }).catchError((Object error) {
 

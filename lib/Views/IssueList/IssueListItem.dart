@@ -4,12 +4,13 @@ import "package:flutter/material.dart";
 
 import "../../Utilities.dart";
 import "../../UIHelper.dart";
+import "../../Data/Issue.dart";
 import "../../Data/ContentManager.dart";
 
 class IssueListItem extends StatefulWidget {
     IssueListItem({Key key, this.issue, this.downloadStatus, this.isDownloaded}) : super(key: key);
 
-    final Map issue;
+    final Issue issue;
     final DownloadStatus downloadStatus;
     final bool isDownloaded;
 
@@ -22,7 +23,7 @@ class _IssueListItemState extends State<IssueListItem> {
     void _onTap() {
 
         if (widget.isDownloaded) {
-            _openIssue(widget.issue["id"]);
+            _openIssue(widget.issue.id);
         }
     }
 
@@ -32,7 +33,7 @@ class _IssueListItemState extends State<IssueListItem> {
             return;
         }
 
-        var message = "Are you sure you want to delete this issue?\n\n${widget.issue['title']}";
+        var message = "Are you sure you want to delete this issue?\n\n${widget.issue.title}";
         var title = "Confirm Delete";
 
         var result = await UIHelper.confirm(message: message, title: title, context: context);
@@ -40,7 +41,7 @@ class _IssueListItemState extends State<IssueListItem> {
         if (result == Buttons.Yes) {
 
             // TODO: Show blocking modal activity spinner, dismiss on complete.
-            var deleteResult = await on(ContentManager.instance.deleteIssue(widget.issue["id"]));
+            var deleteResult = await on(ContentManager.instance.deleteIssue(widget.issue.id));
 
             if (deleteResult.error != null) {
                 UIHelper.showSnackBar(message: "Error deleting issue", color: Colors.red, context: context);
@@ -52,7 +53,7 @@ class _IssueListItemState extends State<IssueListItem> {
     }
 
     void _onOpenIssueButtonPressed() {
-        _openIssue(widget.issue["id"]);
+        _openIssue(widget.issue.id);
     }
 
     void _onDownloadButtonPressed() {
@@ -61,7 +62,7 @@ class _IssueListItemState extends State<IssueListItem> {
             return;
         }
 
-        ContentManager.instance.downloadIssue(widget.issue["id"]);
+        ContentManager.instance.downloadIssue(widget.issue.id);
     }
 
     _openIssue(String issueID) {
@@ -72,7 +73,7 @@ class _IssueListItemState extends State<IssueListItem> {
 
         var isThisIssueDownloading = widget.downloadStatus != null
                                         && widget.downloadStatus.inProgress
-                                        && widget.downloadStatus.id == widget.issue["id"];
+                                        && widget.downloadStatus.id == widget.issue.id;
 
         if (isThisIssueDownloading) {
 
@@ -120,11 +121,13 @@ class _IssueListItemState extends State<IssueListItem> {
 
             isThreeLine: true,
 
-            leading: new FlutterLogo(),
+            leading: new Image(
+                image: new NetworkImage(widget.issue.imageURL)
+            ),
 
-            title: new Text(widget.issue["title"]),
+            title: new Text(widget.issue.title),
 
-            subtitle: new Text(widget.issue["summary"]),
+            subtitle: new Text(widget.issue.summary),
 
             trailing: _buildTrailingWidget(),
         );
