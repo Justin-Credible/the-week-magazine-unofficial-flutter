@@ -29,15 +29,15 @@ class ContentManager {
     // TODO: Move to config file.
     static const String _url = "https://home.justin-credible.net/private/the-week/";
 
-    static ContentManager instance;
+    static ContentManager _instance;
 
-    factory ContentManager() {
+    static ContentManager get instance {
 
-        if (instance == null) {
-            instance = new ContentManager._internal();
+        if (_instance == null) {
+            _instance = new ContentManager._internal();
         }
 
-        return instance;
+        return _instance;
     }
 
     ContentManager._internal() {

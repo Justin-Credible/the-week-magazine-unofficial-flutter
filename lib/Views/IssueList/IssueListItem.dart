@@ -5,6 +5,7 @@ import "package:flutter/material.dart";
 import "../../Utilities.dart";
 import "../../UIHelper.dart";
 import "../../Data/Issue.dart";
+import "../ArticleList/ArticleList.dart";
 import "../../Data/ContentManager.dart";
 
 class IssueListItem extends StatefulWidget {
@@ -66,7 +67,9 @@ class _IssueListItemState extends State<IssueListItem> {
     }
 
     _openIssue(String issueID) {
-        // TODO: Navigate to article list.
+        Navigator.push(context, new MaterialPageRoute(
+            builder: (_) => new ArticleList(issueID: issueID,),
+        ));
     }
 
     Widget _buildTrailingWidget() {

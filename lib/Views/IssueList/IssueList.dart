@@ -23,11 +23,10 @@ class IssueListState extends State<IssueList> {
 
     final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
 
-    ContentManager _contentManager = new ContentManager();
     bool _showSpinner = false;
     DownloadStatus _downloadStatus;
-    List _issues = new List<Issue>();
-    Map<String, bool> _downloadedIssuesMap = new Map();
+    List<Issue> _issues = new List<Issue>();
+    Map<String, bool> _downloadedIssuesMap = new Map<String, bool>();
 
     Future<Null> refresh() {
 
@@ -89,8 +88,8 @@ class IssueListState extends State<IssueList> {
     initState() {
         super.initState();
 
-        _contentManager.addDownloadStatusChangedListener("IssueList", _onDownloadStatusChanged);
-        _contentManager.addIssueDeletedListener("IssueList", _onIssueDeleted);
+        ContentManager.instance.addDownloadStatusChangedListener("IssueList", _onDownloadStatusChanged);
+        ContentManager.instance.addIssueDeletedListener("IssueList", _onIssueDeleted);
 
         _showSpinner = true;
         _doRefresh(false);
