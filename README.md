@@ -11,8 +11,6 @@ Therefore, I have created this unofficial app so Android users can continue to r
 
 I am not affiliated with _The Week_ in any way.
 
-# Flutter Port
+# :warning: Flutter Port
 
-I originally wrote [this app](https://github.com/Justin-Credible/the-week-magazine-unofficial) in TypeScript and Java with Ionic for the user interface. As a learning exercise, this is a port of the app to Dart with [Flutter](https://flutter.io/) for the user interface.
-
-:warning: This port is a work in progress! :warning:
+I originally wrote [this app](https://github.com/Justin-Credible/the-week-magazine-unofficial) in TypeScript and Java with Ionic for the user interface. This is port of the app to Dart with [Flutter](https://flutter.io/) for the user interface which I did as a learning exercise. If you are looking for a feature complete app, then you should check out the [Ionic version](https://github.com/Justin-Credible/the-week-magazine-unofficial).
