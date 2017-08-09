@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - flutter_webview_plugin (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `/Users/junterreiner-x/Development/flutter/bin/cache/artifacts/engine/ios`)
+  - flutter_webview_plugin (from `/Users/junterreiner-x/.pub-cache/hosted/pub.dartlang.org/flutter_webview_plugin-0.0.5/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: "/Users/junterreiner-x/Development/flutter/bin/cache/artifacts/engine/ios"
+  flutter_webview_plugin:
+    :path: "/Users/junterreiner-x/.pub-cache/hosted/pub.dartlang.org/flutter_webview_plugin-0.0.5/ios"
+
+SPEC CHECKSUMS:
+  Flutter: d674e78c937094a75ac71dd77e921e840bea3dbf
+  flutter_webview_plugin: ed9e8a6a96baf0c867e90e1bce2673913eeac694
+
+PODFILE CHECKSUM: 351e02e34b831289961ec3558a535cbd2c4965d2
+
+COCOAPODS: 1.1.1

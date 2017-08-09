@@ -25,7 +25,7 @@ android {
     defaultConfig {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        applicationId "net.justin_credible.theweek"
+        applicationId "net.justin_credible.theweek2"
     }
 
     buildTypes {
