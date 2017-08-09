@@ -66,11 +66,23 @@ class MagazineDataSource {
                 summary: entry["summary"]["\$t"] ?? "",
             );
 
-            // TODO: Group by category?
+            entry["category"].forEach((Map category) {
+
+                if (category["scheme"] == "http://schema.pugpig.com/section") {
+                    article.section = category["term"];
+                }
+                else if (category["scheme"] == "http://schema.pugpig.com/pagetype") {
+                    article.pageType = category["term"];
+                }
+            });
+
             entry["link"].forEach((Map link) {
 
                 if (link["rel"] == "alternate") {
                     article.localURI = link["href"];
+                }
+                else if (link["rel"] == "sharing_image") {
+                    article.imageURI = link["href"];
                 }
             });
 

@@ -1,4 +1,3 @@
-import "dart:async";
 
 import "package:flutter/material.dart";
 import "package:flutter_webview_plugin/flutter_webview_plugin.dart";
@@ -24,7 +23,7 @@ class _ArticleListItemState extends State<ArticleListItem> {
 
     _openArticle() {
 
-        var baseStoragePath = "file:///data/user/0/net.justin_credible.theweek/files";
+        var baseStoragePath = "file:///data/user/0/net.justin_credible.theweek2/files";
 
         var fullURI = "${baseStoragePath}/issues/${widget.issueID}/editions/${widget.issueID}/${widget.article.localURI}";
 

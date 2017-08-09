@@ -1,10 +1,13 @@
 import "dart:async";
+import "dart:io";
 
 import "package:flutter/material.dart";
 
 import "../../Utilities.dart";
 import "../../Data/Article.dart";
 import "../../Data/MagazineDataSource.dart";
+import "../../Data/MagazineDataUtils.dart";
+import "../../Data/ContentManager.dart";
 import "ArticleListItem.dart";
 
 class ArticleList extends StatefulWidget {
@@ -19,21 +22,43 @@ class ArticleList extends StatefulWidget {
 class ArticleListState extends State<ArticleList> {
 
     bool _showSpinner = false;
-    List<Article> _articles = new List<Article>();
+    String _coverImageURL;
+    Map<String, List<Article>> _articlesBySection = new Map<String, List<Article>>();
 
     Future<Null> _refresh() async {
 
-        var result = await on(MagazineDataSource.retrieveArticles(this.widget.issueID));
+        var retrieveArticlesResult = await on(MagazineDataSource.retrieveArticles(this.widget.issueID));
 
-        if (result.error != null) {
+        if (retrieveArticlesResult.error != null) {
             // TODO: show error message in panel
             setState(() { _showSpinner = false; });
             return;
         }
 
+        List<Article> allArticles = retrieveArticlesResult.data;
+        Map<String, List<Article>> articlesBySection;
+
+        try {
+            articlesBySection = MagazineDataUtils.getArticlesBySection(allArticles, false, false);
+        }
+        catch (error) {
+            // TODO: show error message in panel
+            setState(() { _showSpinner = false; });
+            return;
+        }
+
+        var retrieveCoverImageResult = await on(ContentManager.instance.getCoverImageFilePath(widget.issueID));
+
+        String coverImageURL;
+
+        if (retrieveArticlesResult.error == null) {
+            coverImageURL = retrieveCoverImageResult.data;
+        }
+
         setState(() {
             _showSpinner = false;
-            _articles = result.data;
+            _coverImageURL = coverImageURL;
+            _articlesBySection = articlesBySection;
         });
     }
 
@@ -57,7 +82,7 @@ class ArticleListState extends State<ArticleList> {
                     child: new CircularProgressIndicator()
                 );
             }
-            else if (_articles == null || _articles.length == 0) {
+            else if (_articlesBySection == null || _articlesBySection.length == 0) {
 
                 return new Container(
                     padding: new EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
@@ -75,23 +100,7 @@ class ArticleListState extends State<ArticleList> {
                 );
             }
             else {
-
-                return new ListView.builder(
-                    padding: kMaterialListPadding,
-                    itemCount: _articles.length,
-
-                    itemBuilder: (BuildContext context, int index) {
-
-                        var article = _articles[index];
-
-                        return new Column(
-                            children: [
-                                new ArticleListItem(issueID: widget.issueID, article: article),
-                                new Divider(),
-                            ]
-                        );
-                    },
-                );
+                return _buildListView(context);
             }
         }
 
@@ -102,6 +111,48 @@ class ArticleListState extends State<ArticleList> {
             ),
 
             body: buildChild(),
+        );
+    }
+
+    Widget _buildListView(BuildContext context) {
+
+        final ThemeData themeData = Theme.of(context);
+        final TextStyle headerStyle = themeData.textTheme.body2.copyWith(color: themeData.accentColor);
+
+        return new ListView.builder(
+            padding: kMaterialListPadding,
+            itemCount: _articlesBySection.length,
+
+            itemBuilder: (BuildContext context, int index) {
+
+                var articles = _articlesBySection.values.elementAt(index);
+                var categoryTitle = _articlesBySection.keys.elementAt(index);
+
+                var children = new List<Widget>();
+
+                // Add the magazine cover image before any of the sections.
+                if (index == 0 && _coverImageURL != null) {
+                    children.add(new Image(
+                        image: new FileImage(new File(_coverImageURL)),
+                        height: 400.0,
+                    ));
+                }
+
+                children.add(new Container(
+                    height: 48.0,
+                    padding: const EdgeInsets.only(left: 16.0),
+                    alignment: FractionalOffset.centerLeft,
+                    child: new Text(categoryTitle, style: headerStyle)
+                ));
+
+                for (var article in articles) {
+                    children.add(new ArticleListItem(issueID: widget.issueID, article: article));
+                }
+
+                children.add(new Divider());
+
+                return new Column(children: children);
+            },
         );
     }
 }
