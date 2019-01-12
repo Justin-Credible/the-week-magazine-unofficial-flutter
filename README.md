@@ -14,3 +14,5 @@ I am not affiliated with _The Week_ in any way.
 # :warning: Flutter Port
 
 I originally wrote [this app](https://github.com/Justin-Credible/the-week-magazine-unofficial) in TypeScript and Java with Ionic for the user interface. This is port of the app to Dart with [Flutter](https://flutter.io/) for the user interface which I did as a learning exercise. If you are looking for a feature complete app, then you should check out the [Ionic version](https://github.com/Justin-Credible/the-week-magazine-unofficial).
+
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
